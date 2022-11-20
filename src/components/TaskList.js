@@ -10,13 +10,28 @@ import {
 import DeleteTask from './DeleteTask';
 import ClearTasks from './ClearTasks';
 import img from '../images/empty.svg';
+import supabase from '../supabase';
+import { useState, useEffect } from 'react';
 
 export default function TaskList() {
-  return (
-    <Box align="center">
-      <Image src={img} mt="30px" maxW="95%" />
-    </Box>
-  );
+  const [tasks, setTasks] = useState([]);
+
+  async function fetchData() {
+    let { data: tasks, error } = await supabase.from('todos').select('*');
+    setTasks(tasks);
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  if (!tasks.length) {
+    return (
+      <Box align="center">
+        <Image src={img} mt="30px" maxW="95%" />
+      </Box>
+    );
+  }
   return (
     <>
       <VStack
@@ -29,12 +44,14 @@ export default function TaskList() {
         maxW={{ base: '90vw', sm: '80vw', lg: '50vw', xl: '30vw' }}
         alignItems="stretch"
       >
-        {/* <HStack>
-          <Text w="100%" p="8px" borderRadius="lg">
-            Wash the dishes
-          </Text>
-          <DeleteTask />
-        </HStack> */}
+        {tasks.map(task => (
+          <HStack key={task.id}>
+            <Text w="100%" p="8px" borderRadius="lg">
+              {task.text}
+            </Text>
+            <DeleteTask />
+          </HStack>
+        ))}
       </VStack>
 
       <ClearTasks />
