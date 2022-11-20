@@ -15,15 +15,27 @@ import { useState, useEffect } from 'react';
 
 export default function TaskList() {
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   async function fetchData() {
     let { data: tasks, error } = await supabase.from('todos').select('*');
     setTasks(tasks);
+    setLoading(false);
   }
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  if (loading) {
+    return (
+      <Skeleton
+        width={{ base: '90vw', sm: '80vw', lg: '50vw', xl: '30vw' }}
+        height="300px"
+        rounded="md"
+      />
+    );
+  }
 
   if (!tasks.length) {
     return (
